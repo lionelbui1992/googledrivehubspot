@@ -1,95 +1,99 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import styles from './page.module.css'
+
+const HUBSPOT_CLIENT_ID = process.env.NEXT_PUBLIC_HUBSPOT_CLIENT_ID!
+const HUBSPOT_CLIENT_SECRET = process.env.NEXT_PUBLIC_HUBSPOT_CLIENT_SECRET!
+const REDIRECT_URI = 'https://googledrivehubspot.vercel.app/' // đổi thành domain thật nếu cần
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [contacts, setContacts] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (!code || accessToken) return
+
+    const fetchToken = async () => {
+      try {
+        const res = await axios.post(
+          'https://api.hubapi.com/oauth/v1/token',
+          new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: HUBSPOT_CLIENT_ID,
+            client_secret: HUBSPOT_CLIENT_SECRET,
+            redirect_uri: REDIRECT_URI,
+            code,
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        )
+
+        const token = res.data.access_token
+        setAccessToken(token)
+        localStorage.setItem('hubspot_token', token)
+
+        const contactsRes = await axios.get(
+          'https://api.hubapi.com/crm/v3/objects/contacts',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+
+        setContacts(contactsRes.data.results || [])
+      } catch (err: any) {
+        setError(err?.response?.data?.message || 'Lỗi khi gọi HubSpot')
+      }
+    }
+
+    fetchToken()
+  }, [searchParams, accessToken])
+
+  const handleConnect = () => {
+    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=3c24e4a5-2677-4e9a-9022-f72c0218f80a&redirect_uri=https://googledrivehubspot.vercel.app&scope=crm.objects.contacts.write%20crm.schemas.contacts.write%20oauth%20crm.schemas.contacts.read%20crm.objects.contacts.read`
+    window.location.href = authUrl
+  }
+
+  return (
+    <main className={styles.main}>
+      <h1>Trang kết nối HubSpot</h1>
+      <button onClick={handleConnect} className={styles.button}>
+        Cài đặt / Kết nối với HubSpot
+      </button>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {accessToken && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3>Access Token:</h3>
+          <code style={{ wordBreak: 'break-all' }}>{accessToken}</code>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      )}
+
+      {contacts.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3>Danh sách contacts:</h3>
+          <ul>
+            {contacts.map((c) => (
+              <li key={c.id}>
+                {c.properties?.firstname || 'Chưa đặt tên'} {c.properties?.lastname || ''}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </main>
+  )
 }
