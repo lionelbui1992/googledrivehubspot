@@ -24,7 +24,7 @@ export default function HubspotClient() {
           'https://api.hubapi.com/oauth/v1/token',
           new URLSearchParams({
             grant_type: 'authorization_code',
-            client_id: '3c24e4a5-2677-4e9a-9022-f72c0218f80a',
+            client_id: process.env.NEXT_PUBLIC_HUBSPOT_CLIENT_ID!,
             client_secret: process.env.NEXT_PUBLIC_HUBSPOT_CLIENT_SECRET!,
             redirect_uri: REDIRECT_URI,
             code,
