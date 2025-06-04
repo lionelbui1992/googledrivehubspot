@@ -6,7 +6,16 @@ export async function GET() {
     width: 890,
     height: 748,
     uri: "https://example.com/iframe-contents",
-    label: "Edit",
-    associatedObjectProperties: ["some_crm_property"]
+    label: "Google Drive",
+    associatedObjectProperties: ["some_crm_property"],
+
+    actions: [
+      {
+        type: "ACTION_LINK",
+        text: "Xác thực Google Drive",
+        url: "https://your-domain.com/api/auth/google?userId={{objectId}}",
+        openInNewTab: true
+      }
+    ]
   })
 }
