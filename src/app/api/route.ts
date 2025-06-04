@@ -1,21 +1,13 @@
+// /pages/api/hubspot-card.js
 import { NextResponse } from 'next/server'
 
 export async function GET() {
   return NextResponse.json({
     type: "IFRAME",
     width: 890,
-    height: 748,
-    uri: "https://example.com/iframe-contents",
+    height: 200,
+    uri: "https://googledrivehubspot.vercel.app/iframe-content", // <- trang bạn tự tạo
     label: "Google Drive",
-    associatedObjectProperties: ["some_crm_property"],
-
-    actions: [
-      {
-        type: "ACTION_LINK",
-        text: "Xác thực Google Drive",
-        url: "https://your-domain.com/api/auth/google?userId={{objectId}}",
-        openInNewTab: true
-      }
-    ]
+    associatedObjectProperties: ["hs_object_id"]
   })
 }
