@@ -59,7 +59,7 @@ export default function HubspotClient() {
   }, [searchParams, accessToken])
 
   const handleConnect = () => {
-    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=3c24e4a5-2677-4e9a-9022-f72c0218f80a&redirect_uri=${REDIRECT_URI}&scope=crm.objects.contacts.write%20crm.schemas.contacts.write%20oauth%20crm.schemas.contacts.read%20crm.objects.contacts.read`
+    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=3c24e4a5-2677-4e9a-9022-f72c0218f80a&redirect_uri=https://googledrivehubspot.vercel.app/&scope=crm.objects.contacts.write%20crm.schemas.contacts.write%20oauth%20crm.schemas.contacts.read%20crm.objects.contacts.read`
     window.location.href = authUrl
   }
 
