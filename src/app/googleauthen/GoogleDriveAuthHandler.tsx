@@ -11,7 +11,7 @@ export default function GoogleDriveAuthHandler() {
       const code = searchParams.get('code');
 
       if (!code) {
-        const clientId = process.env.GOOGLE_CLIENT_ID!;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
         console.log('clientId', clientId);
         const redirectUri = encodeURIComponent('https://googledrivehubspot.vercel.app/googleauthen');
         const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
