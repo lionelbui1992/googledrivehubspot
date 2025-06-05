@@ -1,27 +1,28 @@
-// pages/api/createCrmCard.js
+// pages/api/createCrmCard.ts
 import axios from 'axios';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Only handle POST requests
   if (req.method === 'POST') {
     try {
-      const { accessToken } = req.body;  // Get the access token from the request body
+      const { accessToken } = req.body; // Get the access token from the request body
 
       // CRM Card Data (the data that will be posted to create the card)
       const crmCardData = {
-        type: "crm-card",
+        type: 'crm-card',
         data: {
-          title: "Google Drive Integration",
-          description: "View and manage your Google Drive files directly from HubSpot.",
-          uid: "google-drive-integration-card",
-          location: "crm.record.tab", // The card will appear in the contact record tab
+          title: 'Google Drive Integration',
+          description: 'View and manage your Google Drive files directly from HubSpot.',
+          uid: 'google-drive-integration-card',
+          location: 'crm.record.tab', // The card will appear in the contact record tab
           module: {
-            file: "GoogleDriveCard.jsx", // Replace this with your actual React component file
+            file: 'GoogleDriveCard.jsx', // Replace this with your actual React component file
           },
           objectTypes: [
-            { name: "contacts" } // The card will be available for Contacts
-          ]
-        }
+            { name: 'contacts' }, // The card will be available for Contacts
+          ],
+        },
       };
 
       // Making the request to HubSpot API to create the CRM card
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
       // Send back the HubSpot API response (success or failure)
       res.status(200).json(response.data);
     } catch (error) {
-      console.error("Error creating CRM card:", error);
+      console.error('Error creating CRM card:', error);
       res.status(500).json({ error: 'Failed to create CRM card' });
     }
   } else {
