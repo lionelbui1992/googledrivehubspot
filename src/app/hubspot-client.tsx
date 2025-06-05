@@ -6,7 +6,7 @@ import axios from 'axios'
 import styles from './page.module.css'
 
 const REDIRECT_URI = 'https://googledrivehubspot.vercel.app/'
-
+const REDIRECT_URI = 'http://localhost:3000/'
 export default function HubspotClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -59,7 +59,7 @@ export default function HubspotClient() {
   }, [searchParams, accessToken])
 
   const handleConnect = () => {
-    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=3c24e4a5-2677-4e9a-9022-f72c0218f80a&redirect_uri=https://googledrivehubspot.vercel.app/&scope=crm.objects.contacts.write%20crm.schemas.contacts.write%20oauth%20crm.schemas.contacts.read%20crm.objects.contacts.read`
+    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=e0d482e1-4b29-49cc-8656-4fa24dfe6db3&redirect_uri=https://googledrivehubspot.vercel.app/&scope=crm.objects.contacts.write%20crm.objects.contacts.read`
     window.location.href = authUrl
   }
 
