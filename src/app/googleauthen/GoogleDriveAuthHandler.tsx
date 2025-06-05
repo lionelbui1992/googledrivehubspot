@@ -8,18 +8,13 @@ export default function GoogleDriveAuthHandler() {
   const [folderName, setFolderName] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Track button click state
 
   useEffect(() => {
     const handleGoogleDriveAuth = async () => {
       const code = searchParams.get('code');
 
       if (!code) {
-        const clientId = '759567949674-r8uiv70eekku45fssl2dco4k4q419ui0.apps.googleusercontent.com';
-        const redirectUri = encodeURIComponent('https://googledrivehubspot.vercel.app/googleauthen');
-        const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
-
-        window.location.href = authUrl;
         return;
       }
 
@@ -31,7 +26,7 @@ export default function GoogleDriveAuthHandler() {
         });
 
         const { access_token } = await res.json();
-        setAccessToken(access_token); // 👉 lưu token
+        setAccessToken(access_token); // 👉 Save token
 
         const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe';
 
@@ -56,22 +51,45 @@ export default function GoogleDriveAuthHandler() {
       }
     };
 
-    handleGoogleDriveAuth();
-  }, [searchParams]);
+    if (isAuthenticated) {
+      handleGoogleDriveAuth();
+    }
+  }, [searchParams, isAuthenticated]);
+
+  const handleAuthClick = () => {
+    const clientId = '759567949674-r8uiv70eekku45fssl2dco4k4q419ui0.apps.googleusercontent.com';
+    const redirectUri = encodeURIComponent('https://googledrivehubspot.vercel.app/googleauthen');
+    const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
+
+    window.location.href = authUrl;
+    setIsAuthenticated(true); // After clicking, set isAuthenticated to true
+  };
 
   return (
     <div className="mt-4 space-y-4">
+      {!isAuthenticated && (
+        <button
+          onClick={handleAuthClick}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Sign in with Google
+        </button>
+      )}
+
       {folderName && (
         <p className="text-green-600 font-semibold">
           ✅ Tạo thư mục thành công: <span className="font-mono">{folderName}</span>
         </p>
       )}
+
       {accessToken && (
         <div className="text-blue-700 break-all">
           <p className="font-semibold">🔐 Access Token:</p>
           <code className="bg-gray-100 p-2 rounded block">{accessToken}</code>
         </div>
       )}
+
       {error && (
         <p className="text-red-600 font-semibold">❌ {error}</p>
       )}
