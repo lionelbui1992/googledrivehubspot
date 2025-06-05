@@ -17,7 +17,7 @@ export default function GoogleDriveAuthHandler() {
         const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
 
-        window.location.href = authUrl;
+       // window.location.href = authUrl;
         return;
       }
 
