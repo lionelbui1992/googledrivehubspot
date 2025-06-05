@@ -41,10 +41,15 @@ export default function HubspotClient() {
         localStorage.setItem('hubspot_token', token)
         console.log('Access Token:', token);
 
-        // Create the CRM card after authentication
-        await axios.post('/api/createCrmCard', {
-          accessToken: token,
-        })
+        try {
+            const response = await axios.post('/api/createCrmCard', {
+              accessToken: token, // The access token obtained after OAuth
+            });
+
+            console.log('CRM Card created successfully:', response.data);
+          } catch (error) {
+            console.error('Error creating CRM card:', error);
+          }
 
       } catch (err: any) {
         setError(err?.response?.data?.message || 'Lỗi khi gọi HubSpot')
