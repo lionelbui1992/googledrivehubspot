@@ -40,12 +40,6 @@ export default function HubspotClient() {
         setAccessToken(token)
         localStorage.setItem('hubspot_token', token)
 
-        // Now, use the server-side API route to fetch contacts
-        const contactsRes = await axios.get('/api/getContacts', {
-          params: {
-            accessToken: token,
-          },
-        })
 
         setContacts(contactsRes.data.results || [])
 
@@ -83,18 +77,7 @@ export default function HubspotClient() {
         </div>
       )}
 
-      {contacts.length > 0 && (
-        <div>
-          <h3>Danh sách contacts:</h3>
-          <ul>
-            {contacts.map((c) => (
-              <li key={c.id}>
-                {c.properties?.firstname || 'Chưa đặt tên'} {c.properties?.lastname || ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      
     </main>
   )
 }
