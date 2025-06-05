@@ -25,6 +25,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     access_token: tokenData.access_token,
     refresh_token: tokenData.refresh_token,
-    id_token: tokenData.id_token,
+    id_token: tokenData.id_token, 
   });
 }
