@@ -1,10 +1,11 @@
 // pages/api/createCrmCard.js
-import axios from "axios";
+import axios from 'axios';
 
 export default async function handler(req, res) {
+  // Only handle POST requests
   if (req.method === 'POST') {
     try {
-      const { accessToken } = req.body; // Get the access token passed from frontend
+      const { accessToken } = req.body;  // Get the access token from the request body
 
       // CRM Card Data (the data that will be posted to create the card)
       const crmCardData = {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
           uid: "google-drive-integration-card",
           location: "crm.record.tab", // The card will appear in the contact record tab
           module: {
-            file: "GoogleDriveCard.jsx", // This is where your React component will be referenced
+            file: "GoogleDriveCard.jsx", // Replace this with your actual React component file
           },
           objectTypes: [
             { name: "contacts" } // The card will be available for Contacts
@@ -42,7 +43,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to create CRM card' });
     }
   } else {
-    // Handle unsupported HTTP methods
+    // Handle unsupported HTTP methods (e.g., GET, PUT, DELETE)
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }

@@ -39,7 +39,7 @@ export default function HubspotClient() {
         const token = res.data.access_token
         setAccessToken(token)
         localStorage.setItem('hubspot_token', token)
-
+        console.log('Access Token:', token);
 
         // Create the CRM card after authentication
         await axios.post('/api/createCrmCard', {
