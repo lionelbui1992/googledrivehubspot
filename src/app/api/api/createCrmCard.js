@@ -1,100 +1,48 @@
-'use client'
+// pages/api/createCrmCard.js
+import axios from "axios";
 
-import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import styles from './page.module.css'
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    try {
+      const { accessToken } = req.body; // Get the access token passed from frontend
 
-const REDIRECT_URI = 'https://googledrivehubspot.vercel.app/'
-
-export default function HubspotClient() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-  const [contacts, setContacts] = useState<any[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const code = searchParams.get('code')
-    if (!code || accessToken) return
-
-    const fetchToken = async () => {
-      try {
-        const res = await axios.post(
-          'https://api.hubapi.com/oauth/v1/token',
-          new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: 'e0d482e1-4b29-49cc-8656-4fa24dfe6db3',
-            client_secret: '34e57500-9caa-4af3-b89b-25ca125df248',
-            redirect_uri: REDIRECT_URI,
-            code,
-          }),
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          }
-        )
-
-        const token = res.data.access_token
-        setAccessToken(token)
-        localStorage.setItem('hubspot_token', token)
-
-        // Now, use the server-side API route to fetch contacts
-        const contactsRes = await axios.get('/api/getContacts', {
-          params: {
-            accessToken: token,
+      // CRM Card Data (the data that will be posted to create the card)
+      const crmCardData = {
+        type: "crm-card",
+        data: {
+          title: "Google Drive Integration",
+          description: "View and manage your Google Drive files directly from HubSpot.",
+          uid: "google-drive-integration-card",
+          location: "crm.record.tab", // The card will appear in the contact record tab
+          module: {
+            file: "GoogleDriveCard.jsx", // This is where your React component will be referenced
           },
-        })
+          objectTypes: [
+            { name: "contacts" } // The card will be available for Contacts
+          ]
+        }
+      };
 
-        setContacts(contactsRes.data.results || [])
+      // Making the request to HubSpot API to create the CRM card
+      const response = await axios.post(
+        'https://api.hubapi.com/crm/v3/objects/engagements/cards',
+        crmCardData,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-        // Create the CRM card after authentication
-        await axios.post('/api/createCrmCard', {
-          accessToken: token,
-        })
-
-      } catch (err: any) {
-        setError(err?.response?.data?.message || 'Lỗi khi gọi HubSpot')
-      }
+      // Send back the HubSpot API response (success or failure)
+      res.status(200).json(response.data);
+    } catch (error) {
+      console.error("Error creating CRM card:", error);
+      res.status(500).json({ error: 'Failed to create CRM card' });
     }
-
-    fetchToken()
-  }, [searchParams, accessToken])
-
-  const handleConnect = () => {
-    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=e0d482e1-4b29-49cc-8656-4fa24dfe6db3&redirect_uri=https://googledrivehubspot.vercel.app/&scope=crm.objects.contacts.write%20crm.objects.contacts.read`
-    window.location.href = authUrl
+  } else {
+    // Handle unsupported HTTP methods
+    res.status(405).json({ error: 'Method Not Allowed' });
   }
-
-  return (
-    <main className={styles.main}>
-      <h1>Kết nối HubSpot</h1>
-      <button onClick={handleConnect} className={styles.button}>
-        Cài đặt / Kết nối
-      </button>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {accessToken && (
-        <div>
-          <h3>Access Token:</h3>
-          <code style={{ wordBreak: 'break-all' }}>{accessToken}</code>
-        </div>
-      )}
-
-      {contacts.length > 0 && (
-        <div>
-          <h3>Danh sách contacts:</h3>
-          <ul>
-            {contacts.map((c) => (
-              <li key={c.id}>
-                {c.properties?.firstname || 'Chưa đặt tên'} {c.properties?.lastname || ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </main>
-  )
 }
