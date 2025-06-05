@@ -4,10 +4,11 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function GoogleDriveAuthPage() {
-  const searchParams = useSearchParams();
+  
 
   useEffect(() => {
     const handleGoogleDriveAuth = async () => {
+        const searchParams = useSearchParams();
       const code = searchParams.get('code');
 
       if (!code) {
