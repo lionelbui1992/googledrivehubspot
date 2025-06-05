@@ -6,6 +6,8 @@ import axios from 'axios'
 import styles from './page.module.css'
 
 const REDIRECT_URI = 'https://googledrivehubspot.vercel.app/'
+const CLIENT_ID = 'e0d482e1-4b29-49cc-8656-4fa24dfe6db3' // Replace with your HubSpot client ID
+const CLIENT_SECRET = '34e57500-9caa-4af3-b89b-25ca125df248' // Replace with your HubSpot client secret
 
 export default function HubspotClient() {
   const router = useRouter()
@@ -24,8 +26,8 @@ export default function HubspotClient() {
           'https://api.hubapi.com/oauth/v1/token',
           new URLSearchParams({
             grant_type: 'authorization_code',
-            client_id: 'e0d482e1-4b29-49cc-8656-4fa24dfe6db3',
-            client_secret: '34e57500-9caa-4af3-b89b-25ca125df248',
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
             redirect_uri: REDIRECT_URI,
             code,
           }),
@@ -40,14 +42,40 @@ export default function HubspotClient() {
         setAccessToken(token)
         localStorage.setItem('hubspot_token', token)
 
-        // Now, use the server-side API route to fetch contacts
-        const contactsRes = await axios.get('/api/getContacts', {
-          params: {
-            accessToken: token,
-          },
-        })
+        console.log("Access Token:", token)
 
-        setContacts(contactsRes.data.results || [])
+        // Create the CRM card after authentication
+        const crmCardData = {
+          type: "crm-card",
+          data: {
+            title: "Google Drive Integration by HubSpot", 
+            description: "View and manage your Google Drive files directly from HubSpot.",
+            uid: "google_drive_integration", // Unique identifier for the card
+            icon: "https://www.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png", // URL to the icon image
+            location: "crm.record.tab", // Specify the location in HubSpot (e.g., Contact tab)
+            module: {
+              file: "GoogleDriveCard.jsx", // Replace this with your actual React component file
+            },
+            objectTypes: [
+              { name: "contacts" }, // This card will be available for Contacts
+            ],
+          }
+        }
+
+        // Post request to create the CRM card in HubSpot
+        const cardResponse = await axios.post(
+          'https://api.hubapi.com/crm/v3/objects/engagements/cards', 
+          crmCardData, 
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        console.log("CRM Card created:", cardResponse.data)
+
       } catch (err: any) {
         setError(err?.response?.data?.message || 'Lỗi khi gọi HubSpot')
       }
@@ -57,7 +85,7 @@ export default function HubspotClient() {
   }, [searchParams, accessToken])
 
   const handleConnect = () => {
-    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=e0d482e1-4b29-49cc-8656-4fa24dfe6db3&redirect_uri=https://googledrivehubspot.vercel.app/&scope=crm.objects.contacts.write%20crm.objects.contacts.read`
+    const authUrl = `https://app-eu1.hubspot.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=crm.objects.contacts.write%20crm.objects.contacts.read`
     window.location.href = authUrl
   }
 
@@ -77,18 +105,6 @@ export default function HubspotClient() {
         </div>
       )}
 
-      {contacts.length > 0 && (
-        <div>
-          <h3>Danh sách contacts:</h3>
-          <ul>
-            {contacts.map((c) => (
-              <li key={c.id}>
-                {c.properties?.firstname || 'Chưa đặt tên'} {c.properties?.lastname || ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </main>
   )
 }
