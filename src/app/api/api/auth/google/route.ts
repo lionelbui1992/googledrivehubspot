@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   const { code } = await req.json();
 
-  const client_id = '759567949674-r8uiv70eekku45fssl2dco4k4q419ui0.apps.googleusercontent.com';
-  const client_secret = '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';
+  const client_id = process.env.GOOGLE_CLIENT_ID!,
+  const client_secret = process.env.GOOGLE_CLIENT_SECRET!;
   const redirect_uri = 'https://googledrivehubspot.vercel.app/googleauthen';
 
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
