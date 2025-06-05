@@ -11,8 +11,7 @@ export default function GoogleDriveAuthPage() {
       const code = searchParams.get('code');
 
       if (!code) {
-        // Bắt đầu OAuth
-        const clientId =  process.env.GOOGLE_CLIENT_ID!, // <-- Thay bằng Client ID thật
+        const clientId =  process.env.GOOGLE_CLIENT_ID!;
         const redirectUri = encodeURIComponent('https://googledrivehubspot.vercel.app/googleauthen');
         const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
@@ -22,18 +21,14 @@ export default function GoogleDriveAuthPage() {
       }
 
       try {
-        // Đổi code lấy access_token (bạn cần endpoint backend cho phần này)
-        const res = await fetch('/api/auth/google', {
+         const res = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code }),
         });
 
         const { access_token } = await res.json();
-
-        // Gọi Google Drive API để tạo thư mục
-        const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe'; // <-- Thay bằng ID thật
-
+        const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe'; 
         const folderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
           method: 'POST',
           headers: {
