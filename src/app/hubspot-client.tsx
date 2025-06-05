@@ -42,7 +42,7 @@ export default function HubspotClient() {
         console.log('Access Token:', token);
 
         try {
-            const response = await axios.post('/api/crmcart', {
+            const response = await axios.post('/api/crmcard', {
               accessToken: token, // The access token obtained after OAuth
             });
 
