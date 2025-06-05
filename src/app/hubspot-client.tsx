@@ -6,7 +6,6 @@ import axios from 'axios'
 import styles from './page.module.css'
 
 const REDIRECT_URI = 'https://googledrivehubspot.vercel.app/'
-const REDIRECT_URI = 'http://localhost:3000/'
 export default function HubspotClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
