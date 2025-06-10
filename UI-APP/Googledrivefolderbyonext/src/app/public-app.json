@@ -1,0 +1,30 @@
+{
+  "name": "Google Drive By ONEXTDIGITAL",
+  "uid": "google-drive-by-onextdigital",
+  "description": "A CRM extension to integrate Google Drive with ONEXTDIGITAL",
+  "allowedUrls": ["https://googledrivehubspot.vercel.app/"],
+  "auth": {
+    "redirectUrls": ["https://googledrivehubspot.vercel.app/"],
+    "requiredScopes": ["crm.objects.contacts.read", "crm.objects.contacts.write"],
+    "optionalScopes": [],
+    "conditionallyRequiredScopes": []
+  },
+  "support": {
+    "supportEmail": "lione@onextdigital.com",
+    "documentationUrl": "https://example.com/docs",
+    "supportUrl": "https://example.com/support",
+    "supportPhone": "+84982283950"
+  },
+  "extensions": {
+    "crm": {
+      "cards": [
+        {
+          "file": "./extensions/example-card.json"
+        }
+      ]
+    }
+  },
+  "webhooks": {
+    "file": "./webhooks/webhooks.json"
+  }
+}

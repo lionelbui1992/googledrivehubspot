@@ -58,7 +58,7 @@ export default function GoogleDriveAuthHandler() {
 
   const handleAuthClick = () => {
     const clientId = '759567949674-r8uiv70eekku45fssl2dco4k4q419ui0.apps.googleusercontent.com';
-    const redirectUri = encodeURIComponent('https://googledrivehubspot.vercel.app/googleauthen');
+    const redirectUri = encodeURIComponent('https://gdrive.onextdigital.com/googleauthen');
     const scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
 

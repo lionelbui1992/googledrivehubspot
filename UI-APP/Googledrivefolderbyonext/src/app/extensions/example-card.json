@@ -1,0 +1,17 @@
+{
+  "type": "crm-card",
+  "data": {
+    "title": "Google Drive Integration",
+    "description": "View and manage your Google Drive files directly from HubSpot.",
+    "uid": "google-drive-integration-card",
+    "location": "crm.record.tab",
+    "module": {
+      "file": "ExampleCard.jsx"
+    },
+    "objectTypes": [
+      { 
+        "name": "contacts"
+      }
+    ]
+  }
+}
