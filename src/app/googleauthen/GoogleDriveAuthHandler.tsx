@@ -13,7 +13,7 @@ export default function GoogleDriveAuthHandler() {
   useEffect(() => {
     const handleGoogleDriveAuth = async () => {
       const code = searchParams.get('code');
-
+      console.log('Authorization code:', code);
       if (!code) {
         return;
       }
@@ -27,7 +27,7 @@ export default function GoogleDriveAuthHandler() {
 
         const { access_token } = await res.json();
         setAccessToken(access_token); // 👉 Save token
-
+        console
         const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe';
 
         const folderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
@@ -44,6 +44,7 @@ export default function GoogleDriveAuthHandler() {
         });
 
         const folderData = await folderRes.json();
+        console.log('Folder created:', folderData);
         setFolderName(folderData.name);
       } catch (err) {
         console.error('Lỗi xác thực hoặc tạo thư mục:', err);
