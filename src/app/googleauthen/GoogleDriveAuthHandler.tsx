@@ -27,7 +27,7 @@ export default function GoogleDriveAuthHandler() {
 
         const { access_token } = await res.json();
         setAccessToken(access_token); // 👉 Save token
-        console
+        console.log('Access Token:', access_token);
         const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe';
 
         const folderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
@@ -37,7 +37,7 @@ export default function GoogleDriveAuthHandler() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            name: 'Folder Moi',
+            name: 'Folder-Moi',
             mimeType: 'application/vnd.google-apps.folder',
             parents: [parentFolderId],
           }),
