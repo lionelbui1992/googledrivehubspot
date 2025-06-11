@@ -8,27 +8,32 @@ export default function GoogleDriveAuthHandler() {
   const [folderName, setFolderName] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Track button click state
 
   useEffect(() => {
+    const code = searchParams.get('code');
+    if (!code) return;
+
     const handleGoogleDriveAuth = async () => {
-      const code = searchParams.get('code');
       console.log('Authorization code:', code);
-      if (!code) {
-        return;
-      }
 
       try {
+        // Gửi code đến API backend để lấy access token
         const res = await fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code }),
         });
 
+        if (!res.ok) {
+          throw new Error('Failed to exchange code for token');
+        }
+
         const { access_token } = await res.json();
-        setAccessToken(access_token); // 👉 Save token
+        setAccessToken(access_token);
         console.log('Access Token:', access_token);
-        const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe';
+
+        // Tạo thư mục mới trong Google Drive
+        const parentFolderId = '1Qa1M9xWTPDbT22f1dNIGk0YsVe2MzXDe'; // Thay đổi ID nếu cần
 
         const folderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
           method: 'POST',
@@ -44,18 +49,24 @@ export default function GoogleDriveAuthHandler() {
         });
 
         const folderData = await folderRes.json();
-        console.log('Folder created:', folderData);
+
+        if (!folderRes.ok) {
+          console.error('Google Drive API error:', folderData);
+          throw new Error(folderData.error?.message || 'Failed to create folder');
+        }
+
         setFolderName(folderData.name);
-      } catch (err) {
+
+        // Xoá query code để tránh lặp lại
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (err: any) {
         console.error('Lỗi xác thực hoặc tạo thư mục:', err);
-        setError('Lỗi xác thực hoặc tạo thư mục');
+        setError(err.message || 'Lỗi xác thực hoặc tạo thư mục');
       }
     };
 
-    if (isAuthenticated) {
-      handleGoogleDriveAuth();
-    }
-  }, [searchParams, isAuthenticated]);
+    handleGoogleDriveAuth();
+  }, [searchParams]);
 
   const handleAuthClick = () => {
     const clientId = '759567949674-r8uiv70eekku45fssl2dco4k4q419ui0.apps.googleusercontent.com';
@@ -64,12 +75,11 @@ export default function GoogleDriveAuthHandler() {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
 
     window.location.href = authUrl;
-    setIsAuthenticated(true); // After clicking, set isAuthenticated to true
   };
 
   return (
     <div className="mt-4 space-y-4">
-      {!isAuthenticated && (
+      {!accessToken && (
         <button
           onClick={handleAuthClick}
           className="bg-blue-600 text-white px-4 py-2 rounded"
